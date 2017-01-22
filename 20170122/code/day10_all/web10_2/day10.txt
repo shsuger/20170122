@@ -1,0 +1,116 @@
+1,jsp标签与el表达式
+	(1)jsp标签是什么?
+		jsp标签类似于一个普通的html标签，用来替换
+	jsp文件中的java代码。
+		注：
+			因为直接在jsp文件当中写java代码，不方便
+		jsp文件的维护(比如，将jsp交给美工去修改就
+		很不方便)，所以，sun制订了jsp标签技术规范。
+			使用jsp标签的好处：
+			jsp文件更简洁，方便美工修改。
+			jsp标签可以复用。
+	(2)el表达式是什么?
+		是一套简单的计算规则，用于给jsp标签的属性
+	赋值，也可以脱离jsp标签直接使用(用来输出)。
+	(3)el表达式的使用
+		1)访问bean的属性  (e1.jsp)
+			方式一:
+				${user.name}  容器依次从pageContext,
+							request,session,application中查找
+							绑订名称为"user"的对象，找到之
+							后，会调用该对象的"getName"方法
+							然后输出。
+							注：
+								a,如果找不到该对象，输出""。
+								b,对于null值，会输出""。
+								c,可以指定查找范围
+									pageScope,requestScope,
+									sessionScope,applicationScope
+			方式二: (e1.jsp)
+				${user["name"]}
+						注：
+							a,[]里面可以出现绑订名。
+							b,[]里面可以出现从0开始的下标，
+							用来访问数组中的某个元素。
+		2)进行简单的计算,计算结果可以直接输出，也
+		可以用来给jsp标签的属性赋值。(e2.jsp)
+			a,算术运算:  "+","-","*","/","%"
+								注："+" 只能求和。
+			b,关系运算:  ">",">=","<","<=","==","!="
+			c,逻辑运算: "&&","||","!"
+			d,empty运算: empty
+							注：如果字符串为空，或者集合
+							为空，值为true。
+			
+		3)获得请求参数值	 (e3.jsp)
+			${param.age}
+				等价于request.getParameter("age")
+			${paramValues.city}
+				等价于request.getParameterValues("city")
+	(4)jstl (java standard tag lib)
+		1)jstl是什么?
+			apache提供的一套jsp标签，后来捐献给了sun,
+		javaee5.0包含了jstl。
+		2)编程步骤
+			step1,将jstl相关的jar文件(标签类及相应的
+			描述文件)拷贝到WEB-INF\lib下。
+			注：
+				如果是javaee5.0,不用拷贝了。
+			step2,使用taglib指令引入要使用的jsp标签。
+		3)核心标签
+			a, if标签    a1.jsp     
+				用法:
+					<c:if test="" var="" scope="">
+					</c:if>
+					如果test属性值为true,则执行标签体的
+					内容,	test属性可以使用el表达式来赋值。
+					var属性:用来指定绑订名。
+					scope属性:用来指定绑订范围("page",
+								"request","session","application")。
+			b,choose标签   a2.jsp
+				<c:choose>
+					<c:when test="">
+					</c:when>					
+					....
+					<c:otherwise>
+					</c:otherwise>
+				</c:choose>		
+				用法:
+					when可以出现1次或者多次，表示一个
+					分支，当test属性为true时，执行when
+					标签体的内容。
+					otherwise可以出现0次或者1次，表示例外。
+			c,forEach标签  a3.jsp
+				用法:
+				<c:forEach items="" var="" varStatus="">
+				</c:forEach>
+				forEach标签用来遍历集合或者数组。
+				items属性：用来指定要遍历的集合或者数组，
+							可以使用el表达式。
+				var属性：指定绑订名，绑订范围是pageContext。
+							该标签每次从集合或者数组中取一
+							个元素，然后绑到的pageContext。
+				varStatus属性：指定绑订名,绑订范围是pageContext。			
+							绑订值是一个对象，封装了当前遍历的状态:
+							getIndex:返回正在被遍历的元素的下标。
+							getCount:返回当前是第几次遍历。
+	练习：
+			将listEmp.jsp,updateEmp.jsp中的java
+			代码使用jsp标签和el表达式来替换。
+	(5)自定义标签
+		step1,写一个java类，继承SimpleTagSupport类。
+		step2,override doTag方法，在该方法里面，编写
+		处理逻辑。
+		step3,描述标签(.tld文件)
+			<body-content>empty</body-content>
+			<body-content>scriptless</body-content>
+			<body-content>JSP</body-content>
+			empty : 标签没有标签体。
+			scriptless: 标签有标签体，但是，标签体
+					不允许出现java代码。
+			JSP:	标签有标签体，但是，标签体
+					允许出现java代码(只有复杂标签技术
+					支持该值，简单标签技术只支持empty
+					和scriptless)。	 				
+	
+	

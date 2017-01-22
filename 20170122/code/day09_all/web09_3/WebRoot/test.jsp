@@ -1,0 +1,1 @@
+<a href="<%=response.encodeURL("some")%>">to someServlet</a>

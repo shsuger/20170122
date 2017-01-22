@@ -1,0 +1,214 @@
+1,监听器
+	(1)什么是监听器?
+		servlet规范当中定义的一种特殊的组件，用来
+	监听容器产生的事件并进行处理。
+		主要有两大类事件:
+		1)生命周期相关的事件
+		容器创建或者销毁了request,session,
+		ServletContext(servlet上下文)产生的事件。
+		2)绑订数据相关的事件
+		调用了request,session,servlet上下文的
+		setAttribute,removeAttribute产生的事件。
+	(2)如何写一个监听器?
+		step1,写一个java类，实现监听器接口。
+		注：
+			依据要监听的事件类型选择合适的接口。
+		step2,在监听器接口方法中，实现监听处理逻辑。
+		step3,配置监听器(web.xml)	
+	统计在线人数
+	(3)servlet上下文
+		1)什么是servlet上下文?
+			容器在启动之后，会为每一个web应用创建
+		唯一的一个符合ServletContext接口要求的对象。
+		该对象称之为servlet上下文。
+			该对象有两个特点
+			a.唯一性：一个web应用对应一个上下文。
+			b,一直存在：只要容器没有关闭,应用没有卸载，
+							上下文就一直存在。
+		2)如何获得servlet上下文?
+			GenericServlet,ServletConfig,FilterConfig,
+			HttpSession都提供了getServletContext()
+			方法来获得该对象。
+		3)作用
+			a,绑订数据
+			setAttribute,getAttribute,removeAttribute
+			注:
+				servlet上下文绑订的数据可以随时访问(
+			servlet上下文会一直存在)。
+			b,访问全局的初始化参数
+				全局的初始化参数指的是使用<context-param>
+			配置的初始化参数，可以被同一个应用的所有
+			servlet,过滤器访问。
+				step1,
+				<context-param>
+  					<param-name>version</param-name>
+  					<param-value>1.0</param-value>
+  				</context-param>
+  				step2,
+  					ServletContext.getInitParameter方法
+  					来访问。
+				
+2, servlet的线程安全问题
+	(1)servlet为什么会有线程安全问题?
+		a, 默认情况下，容器对于某个类型的servlet,
+		只会创建一个实例。
+		b,当有多个请求同时访问某个servlet时，容器
+		会启动对个线程来调用该servlet实例，就有可能
+		发生线程安全问题：
+			比如，这些线程要修改servlet的某个属性。
+	(2)如何解决?
+		a,使用synchronized加锁。
+		注：加锁对性能会有影响。
+		b,让servlet实现SingleThreadModel接口(建议少用)
+		如果servlet实现了该接口,则容器会为每一个线程
+		创建一个对应的servlet实例。
+		注：可能会创建过多的servlet实例，建议少用。
+		结论: 尽量避免修改servlet的属性。
+		
+3, url重写(了解)
+	(1)什么是url重写?
+		在浏览器向服务器发请求时，在请求地址后面
+	添加上sessionId。
+	(2)如何进行url重写?
+		response.encodeURL(String url);
+		注：用于链接地址和表单提交
+		比如:
+			<form action="<%=response.encodeURL("some")%>">
+		response.encodeRedirectURL(String url);
+		注：用于重定向
+		比如:
+			response.sendRedirect(
+			response.encodeRedirectURL("main.jsp"));
+4,servlet小结
+	(1)servlet基础
+		1)什么是servlet?
+		2)如何写一个servlet?
+		3)servlet是如何运行的?
+		4)http协议(了解)
+			a,什么是http协议
+			b,特点
+			c,数据包的结构(消息头,状态码)
+			d,两种请求方式及其特点(get/post)
+	(2)servlet核心
+		1)获得请求参数值
+		2)表单包含表中文参数值，如何处理
+		3)servlet如何输出中文
+		4)servlet如何处理请求资源路径
+		5)如何让一个servlet处理多种请求
+		6)重定向与转发
+		7)生命周期
+		8)ServletContext
+		9)线程安全问题
+	(3)状态管理
+		1)什么是状态管理
+		2)Cookie
+			a,什么是cookie
+			b,cookie是如何工作的
+			c,如何添加cookie(编码问题,生存时间问题,路径问题)
+			d,如何查询cookie
+			e,cookie的限制
+		3)session
+			a,什么是session
+			b,session是如何工作的
+			c,如何获得session
+			d,session绑订数据
+			e,session超时
+			f,删除session
+			g,cookie被禁止，如何继续使用session
+				(url重写)
+	(4)数据库访问
+			a,如何使用jdbc访问数据库。
+			b,使用dao访问数据库。
+	(5)过滤器与监听器
+			a,什么是过滤器
+			b,如何写一个过滤器
+			c,过滤器的优先级
+			d,过滤器的初始化参数
+			e,过滤器的优点
+			f,什么是监听器
+			g,如何写一个监听器
+	(6)典型案例
+			a,员工信息管理
+			b,登录
+			c,session验证
+			d,验证码
+
+5, jsp基础
+	(1)jsp是什么
+	(2)如何写一个jsp文件
+		step1,写一个以".jsp"为后缀的文件 
+		step2,添加
+			1)html(css,js)   直接写
+			2)java代码
+				a, java代码片断 (java小脚本)
+				<%     %>
+				b,jsp表达式
+				<%=   %>
+				c,jsp声明           ( a1.jsp)
+				<%!  变量,方法   %>
+			3)隐含对象
+				a,什么是隐含对象
+				b,为什么可以直接使用这些隐含对象
+				c,有哪些隐含对象
+					out,request,response
+					session
+					application
+					pageContext    
+						pageContext是什么?
+							容器会为每一个jsp实例创建一个
+						符合PageContext接口要求的对象。
+						作用:  (a2.jsp a3.jsp)
+							绑订数据:  setAttribute,getAttribute,
+										removeAttribute
+							查找其它所有的隐含对象:
+										该对象提供了获得其它隐含
+										对象的方法。
+					config:  (a4.jsp)  ServletConfig,访问jsp
+										的初始化参数。  
+					exception: (a5.jsp,a6.jsp) 用来获得jsp
+								运行时产生的异常信息的。必须
+								设置page指令的isErrorPage属性
+								为true时，才能使用。
+					page: jsp实例本身
+			4)指令
+				a,什么是指令
+				b,指令语法
+					<%@指令名称 属性=属性值%>
+				c,page指令
+					import属性
+					pageEncoding属性
+					contentType属性
+					errorPage属性：指定一个异常处理页面。
+					isErrorPage属性:true/false(缺省),值为true
+									时，表示这是一个异常处理页面，
+									可以使用exception隐含对象。
+					session属性:true(缺省)/false (a7.jsp),当
+								session属性为false时，容器不再添加
+								获得session对象的代码。
+				d,include指令
+					file属性：告诉容器，在将jsp转换成
+						servlet时，将file属性指定的文件
+						的内容插入到该指令所在的位置。
+				e,taglib指令
+					导入jsp标签
+			5)注释  a8.jsp
+				a, <!-- 注释内容 --->
+				b, <%-- 注释内容   --%>
+				注：第一种注释，如果是java代码，会
+				执行，第二种注释，如果是java代码，不
+				会执行。	
+	(3)jsp是如何运行的
+		step1,容器要将jsp转换成一个servlet类
+			html -----------> service方法 out.write
+			<%  %> -------->  service方法 照搬
+			<%=  %> -------> service方法 out.print
+			<%!   %> ----------> 给servlet添加成员变量
+							或成员方法
+		step2,调用servlet。
+		
+
+		
+						
+		
+			
+		

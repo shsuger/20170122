@@ -1,0 +1,87 @@
+step1,Employee类
+step2,DBUtil类(也可以用以前的)
+step3,EmployeeDAO类
+		public List<Employee> findAll();
+		public void save(Employee e);
+		public void delete(int id);
+		public Employee findById(int id);
+		public void modify(Employee e);
+step4,测试EmployeeDAO
+step5,修改ListEmpServlet
+
+中文保存到数据库，需要注意两点：
+	(1)数据库要支持中文
+	create database jsd1410db
+	default character set utf8;
+	(2)jdbc驱动要能够正确地进行编码和解码
+		jdbc:mysql://localhost:3306/jsd1410db?
+		useUnicode=true&characterEncoding=utf8
+		注：有些jdbc驱动默认情况下，会使用iso-8859-1
+		来编码或者解码，中文就会有乱码问题，这句话
+		的作用是告诉驱动使用utf-8来编码或解码。
+
+1.servlet生命周期
+	(1)什么是servlet生命周期?
+		servlet容器创建servlet对象,为其分配资源,调用其
+	方法来处理请求,以及销毁该对象的整个过程。
+	(2)servlet生命周期分成哪几个阶段
+		1)实例化(创建servlet对象)
+			a,什么时候进行实例化
+				情形1：
+					容器收到请求之后。
+				情形2:
+					容器启动之后，会立即创建
+					servlet实例(该servlet配置了
+					<load-on-startup>参数)。
+					参数值是一个大于等零的整数，越小，
+					优先级越高(即越先被创建)。
+			注:
+				容器在默认情况下，对于某个类型的servlet,
+				只会创建一个实例。
+		2)初始化(分配资源)
+			a,什么是初始化?
+				容器调用servlet对象的init方法。
+			b,GenericServlet的init方法是如何实现的?
+				将容器传递过来的ServletConfig对象保存
+				下来，并且提供了一个方法(getServletConfig)
+				来获得ServletConfig对象。
+			c,如何实现自已的初始化处理逻辑?
+				override init()
+					注意，是不参数的init方法。	
+			d,init方法在整个生命周期当中会执行几次?
+				一次。
+			e,初始化参数
+				step1,配置
+					<init-param>
+  						<param-name>company</param-name>
+  						<param-value>大鹏证券</param-value>
+  					</init-param>
+  				step2,访问
+  					String ServletConfig.getInitParameter(String 
+  					paramName);
+		3)就绪(处理请求)
+			a,什么是就绪?
+				容器调用servlet对象的service方法来处理
+				请求。
+			b,HttpServlet的service方法是如何实现的?
+				依据请求方式(get/post)调用对应的
+				doXXX方法(doGet/doPost)来处理。
+			c, 	可以override HttpServlet的doGet和doPost
+			方法来处理请求，或者也可以直接override
+			HttpServlet的service方法。
+		4)销毁(销毁servlet对象)
+			a,什么是销毁?
+				容器在删除servlet对象之前，会调用该
+				对象的destroy方法。
+			b,destroy方法只会执行一次。	
+	(3)生命周期相关的几个接口与类
+		1)Servlet接口
+			init
+			service
+			destroy
+		2)GenericServlet抽象类
+			实现了Servlet接口中的部分方法(init,destroy)
+		3)HttpServlet抽象类
+			继承了GenericServlet抽象类，实现了service
+			方法。
+			

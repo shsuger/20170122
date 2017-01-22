@@ -1,0 +1,149 @@
+1,cookie
+ 		1)cookie是什么?
+ 		  服务器临时保存在浏览器端的少量的数据。
+ 		2)cookie工作原理
+ 			当浏览器访问服务器时，服务器会将少量
+ 		数据以set-cookie消息头的方式发送给浏览器，
+ 		浏览器会将这些数据临时保存下来；
+ 			当浏览器再次访问服务器时，会将之前保存
+ 		的数据以cookie消息头的方式发送过去。
+ 		3)添加cookie
+ 			Cookie c = new Cookie(String name,String value);	
+ 			response.addCookie(c);
+ 		4)查询cookie
+ 			Cookie[] request.getCookies();
+ 			注：该方法有可能返回null。
+ 			String cookie.getName();
+ 			String cookie.getValue();
+ 		 5)cookie的编码问题
+ 		 	a,什么是编码问题
+ 		 		cookie只能保存合法的ascii字符，中文需要
+ 		 	转换成相应的ascii字符的表示形式。
+ 		 	b,如何转换?
+ 		 		String URLEncode.encode(String str,String charset)
+ 		 		String URLDecode.decode(String str,String charset)
+  	  		注：即使保存的是ascii字符，最好也做编码处理。
+  	  	6)	cookie的生存时间
+  	  		默认情况下， 浏览器会把cookie放到内存。
+  	  		如果浏览器关闭，cookie会被删除。
+  	  		cookie.setMaxAge(int seconds)
+  	  		注:
+  	  			a,单位是秒。
+  	  			b,seconds > 0: 浏览器会把cookie保存到
+  	  					硬盘上,超过指定时间(seconds),浏览
+  	  					器会删除cookie。
+  	  			   seconds < 0: 默认值(浏览器会把cookie
+  	  			   放到内存)
+  	  			   seconds = 0: 删除
+  	  			   	比如，要删除一个名称为"uid"的cookie
+  	  			   		Cookie c = new Cookie("uid","");
+  	  			   		c.setMaxAge(0);
+  	  			   		response.addCookie(c);
+  	  练习：
+  	  		写一个Find_addCookieServlet,该servlet
+  	  	先查看是否有一个名称为"items"的cookie,
+  	  	如果有，则显示该cookie的值，如果没有，则
+  	  	添加(不用考虑生存时间和编码问题)。	
+  	  	7)cookie的路径问题
+  	  		a,什么是路径问题?
+  	  			浏览器向服务器上的某个地址发请求时，
+  	  		会比较请求地址是否与cookie的路径匹配，
+  	  		只有匹配的cookie才会被发送出去。
+  	  		b,cookie的缺省的路径
+  	  			等于添加该cookie的web组件(servlet/jsp)的
+  	  		路径。
+  	  			比如，/web07/biz01/addCookie.jsp添加了
+  	  		一个cookie,则该cookie的默认路径是
+  	  		"/web07/biz01"。
+  	  		c,匹配规则
+  	  			要访问的地址(路径)必须是cookie的路径或者
+  	  			其子路径，浏览器才会将该cookie发送出去。
+  	  			/web07/findCookie.jsp    no
+  	  			/web07/biz01/findCookie1.jsp  yes
+  	  			/web07/biz01/aaa/findCookie2.jsp yes
+  	  		d,设置cookie的路径
+  	  			cookie.setPath(String path);
+  	  			比如
+  	  			cookie.setPath("/web07");
+  	  	8)cookie的限制
+  	  		a, cookie可以被禁止。
+  	  		b, cookie不安全(不要将敏感数据保存在浏览器)
+  	  		c, cookie的大小有限制(大约4k)
+  	  		d,cookie的数量也有限制(大约300个)
+  	  		e,cookie只能保存字符串
+ 2,session(会话)
+ 	(1)session是什么?
+ 		是服务器端为了保存状态而创建的一个对象。
+ 	(2)session工作原理
+ 			浏览器访问服务器时，服务器会创建一个
+ 		session对象(该对象有一个唯一的id,称之为
+ 		sessionId),服务器会将这个sessionId以cookie
+ 		的方式发送给浏览器；
+ 			当浏览器再次访问服务器时，会将sessionId
+ 		发送给服务器，服务器就可以依据sessionId找
+ 		到之前创建的session对象。
+ 	(3)获得session对象
+ 		1)方式一
+ 			HttpSession s = 
+ 				request.getSession(true/false);	
+ 				a,当参数值为true时
+ 					先查看请求当中是否有sessionId,如果
+ 				没有sessionId,则创建一个session对象；
+ 				如果有sessionId,则依据sessionId查找
+ 				对应的session对象,如果找到了则返回，找不
+ 				到，则创建一个新的session对象。 
+ 				b,当参数值为false时
+ 					先查看请求当中是否有sessionId,如果
+ 				没有sessionId,返回null;
+ 					 如果有sessionId,则依据sessionId查找
+ 				对应的session对象,如果找到了则返回，找不
+ 				到，返回null。
+ 		2)方式二
+ 			HttpSession s = 
+ 				request.getSession();	
+ 			等价于  request.getSession(true);
+  	(4)绑订数据
+  		setAttribute(String name,Object obj);
+  		Object getAttribute(String name);
+  		removeAttribute(String name);  		
+  	 (5)session超时
+  	 	a,什么是session超时
+  	 		服务器会将空闲时间过长的session对象删除。
+  	 	b,缺省的超时时长
+  	 		服务器缺省的超时时长一般是30分钟。
+  	 	c,修改服务器缺省的超时时长
+  	 		<session-config>
+        		<session-timeout>30</session-timeout>
+    		</session-config>
+    	d, session.setMaxInactiveInterval(int seconds)		
+  	  (6)立即删除session
+  	  		session.invalidate()
+  3,session相关案例
+  	(1)session验证
+  		1)登录	  		
+  	  		step1,建表
+  	  		create table user(
+  	  			id int primary key auto_increment,
+  	  			username varchar(20) unique,
+  	  			pwd varchar(30),
+  	  			name varchar(50),
+  	  			gender char(1)
+  	  		);
+  	  		insert into user(username,pwd,name,gender)
+  	  		values('king','1234','Giving king','m');			
+  	  		注	
+  	  			unique: 唯一性约束	
+  	  		step2, User实体类
+  	  		step3,UserDAO
+   	  			public User find(String username);
+  	  		step4,测试UserDAO
+  	  		step5,login.jsp, main.jsp
+  	  		step6,ActionServlet	
+  	  				
+  	  			
+  	  	
+  	  		
+  	  		 	
+  	  			   	
+  	  			   		
+  	  			

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="2.5" 
+	xmlns="http://java.sun.com/xml/ns/javaee" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee 
+	http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+  <servlet>
+    <servlet-name>AddCookieServlet</servlet-name>
+    <servlet-class>web.AddCookieServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>FindCookieServlet</servlet-name>
+    <servlet-class>web.FindCookieServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>Find_addCookieServlet</servlet-name>
+    <servlet-class>web.Find_addCookieServlet</servlet-class>
+  </servlet>
+
+
+
+  <servlet-mapping>
+    <servlet-name>AddCookieServlet</servlet-name>
+    <url-pattern>/addCookie</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>FindCookieServlet</servlet-name>
+    <url-pattern>/findCookie</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>Find_addCookieServlet</servlet-name>
+    <url-pattern>/find_addCookie</url-pattern>
+  </servlet-mapping>
+  <welcome-file-list>
+    <welcome-file>index.jsp</welcome-file>
+  </welcome-file-list>
+</web-app>

@@ -1,0 +1,54 @@
+1,mysql的使用
+	(1)登录mysql
+		打开终端，输入
+		mysql   -uroot -p;
+		zzanywn
+	(2)当前有哪些数据库
+		show databases;
+	(3)创建一个新的数据库(同时设置缺省字符集为utf-8)
+		create database jsd1410db
+		default character set utf8;
+	(4)使用某个数据库
+		use jsd1410db;
+	(5)查看当前数据库有哪些表
+		show tables;
+	(6)建表
+		create table emp(
+			id int primary key auto_increment,
+			name varchar(50),
+			salary double,
+			age int
+		);
+		insert into emp(name,salary,age) 
+		values('King',20000,22);
+				
+		注：auto_increment 自增长列，通常用于
+			生成主键值。
+练习：
+	写一个servlet，将所有员工以表格的形式输出。
+				
+2,重定向
+	(1)什么是重定向?
+		服务器通知浏览器向一个新地址发请求。
+	(2)如何重定向?
+			服务器可以发送一个302状态码和一个Location
+		消息头(包含了一个地址，称之为重定向地址)给
+		浏览器，浏览器收到之后会立即向重定向地址
+		发请求。
+			response.sendRedirect(String url);
+	(3)重定向的特点
+		a,重定向地址是任意的。
+		b,重定向之后，浏览器地址栏的地址会变。
+	(4)重定向之前，容器会先清空response对象上
+	缓存的所有数据。
+			
+			
+		
+	
+			
+	
+			
+		
+		
+		
+	
