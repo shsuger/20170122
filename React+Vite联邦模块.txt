@@ -1,0 +1,106 @@
+React+Vite联邦模块
+2025 年 2 月 24 日•内容由 AI 生成，不能完全保障真实
+写两个react app，一个叫shell app一个叫remote app，用vite federation插件实现两者的关联
+以下是使用 Vite 和 Vite Federation 插件创建shell app和remote app并实现关联的步骤：
+1. 创建项目
+初始化remote app
+打开终端，运行以下命令创建一个新的 Vite React 项目作为remote app：
+
+bash
+npm create vite@latest remote - app -- --template react
+cd remote - app
+npm install
+
+安装vite - plugin - federation：
+
+bash
+npm install vite - plugin - federation --save - dev
+
+在vite.config.ts中配置 Vite Federation 插件：
+
+typescript
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin - react';
+import federation from '@originjs/vite - plugin - federation';
+
+export default defineConfig({
+  plugins: [
+    react(),
+    federation({
+      name:'remoteApp',
+      filename:'remoteEntry.js',
+      exposes: {
+        './Search': './src/components/Search.jsx'
+      },
+      shared: ['react','react - dom']
+    })
+  ]
+});
+
+假设在src/components目录下创建一个Search.jsx组件，示例代码如下：
+
+jsx
+import React from'react';
+
+const Search = () => {
+  return <div>Remote Search Component</div>;
+};
+
+export default Search;
+
+初始化shell app
+打开新的终端，运行以下命令创建一个新的 Vite React 项目作为shell app：
+
+bash
+npm create vite@latest shell - app -- --template react
+cd shell - app
+npm install
+
+安装vite - plugin - federation：
+
+bash
+npm install vite - plugin - federation --save - dev
+
+在vite.config.ts中配置 Vite Federation 插件：
+
+typescript
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin - react';
+import federation from '@originjs/vite - plugin - federation';
+
+export default defineConfig({
+  plugins: [
+    react(),
+    federation({
+      name:'shellApp',
+      remotes: {
+        remoteApp: 'http://localhost:5174/remoteEntry.js'
+      },
+      shared: ['react','react - dom']
+    })
+  ]
+});
+
+2. 在shell app中使用remote app的组件
+在shell app的src/App.jsx中，使用动态导入来加载remote app的组件：
+jsx
+import React, { Suspense } from'react';
+
+const App = () => {
+  return (
+    <div className="App">
+      <Suspense fallback={<div>Loading...</div>}>
+        {
+          React.lazy(() => import('remoteApp/./Search')).then(({ default: Search }) => <Search />)
+        }
+      </Suspense>
+    </div>
+  );
+};
+
+export default App;
+3. 运行项目
+在remote app目录下，运行npm run dev，启动remote app，默认在http://localhost:5174。
+在shell app目录下，运行npm run dev，启动shell app，默认在http://localhost:5173。
+打开浏览器访问shell app的地址，就可以看到加载的remote app中的Search组件。
+以上代码示例展示了如何使用 Vite Federation 插件在两个 React 应用之间建立关联，实现组件的共享。实际应用中，可以根据需求扩展和优化代码。
