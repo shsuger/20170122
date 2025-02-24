@@ -1,0 +1,142 @@
+React+NX联邦模块
+2025 年 2 月 24 日•内容由 AI 生成，不能完全保障真实
+写出详细的代码，其中remote app和she’ll app都是react 写的，remote app包含两个组件，search和detail页面，search页面中有个id 输入框，输入id 后detail页面能显示其具体信息id🟰5，age 🟰15，name=robby ，将这两个页面组件都expose给shell app，使用nx federation
+以下是结合 NX Module Federation 实现 Remote App 和 Shell App 连接的详细代码示例，假设 Remote App 暴露Search和Detail组件，Shell App 加载并使用它们：
+1. 创建 Remote App（remote - app）
+安装依赖
+确保项目中已经安装了@angular - architects/module - federation：
+bash
+npm install @angular - architects/module - federation --save - dev
+配置module - federation.config.ts
+typescript
+const { withModuleFederationPlugin } = require('@angular - architects/module - federation/webpack');
+
+module.exports = withModuleFederationPlugin({
+  name:'remoteApp',
+  exposes: {
+    './Search': './src/app/search/search.tsx',
+    './Detail': './src/app/detail/detail.tsx'
+  },
+  shared: {
+    react: {
+      singleton: true,
+      requiredVersion: false
+    },
+   'react - dom': {
+      singleton: true,
+      requiredVersion: false
+    }
+  }
+});
+创建Search组件（src/app/search/search.tsx）
+jsx
+import React, { useState } from'react';
+
+const Search = () => {
+  const [id, setId] = useState('');
+
+  return (
+    <div>
+      <input
+        type="text"
+        placeholder="输入id"
+        value={id}
+        onChange={(e) => setId(e.target.value)}
+      />
+    </div>
+  );
+};
+
+export default Search;
+创建Detail组件（src/app/detail/detail.tsx）
+jsx
+import React from'react';
+
+const Detail = ({ id }) => {
+  const data = {
+    id: 5,
+    age: 15,
+    name: 'robby'
+  };
+  return (
+    <div>
+      {id == data.id && (
+        <div>
+          <p>ID: {data.id}</p>
+          <p>Age: {data.age}</p>
+          <p>Name: {data.name}</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Detail;
+2. 创建 Shell App（shell - app）
+配置module - federation.config.ts
+typescript
+const { withModuleFederationPlugin } = require('@angular - architects/module - federation/webpack');
+
+module.exports = withModuleFederationPlugin({
+  name:'shellApp',
+  remotes: {
+    remoteApp: 'http://localhost:4201/remoteEntry.js'// Remote App运行地址，端口根据实际调整
+  },
+  shared: {
+    react: {
+      singleton: true,
+      requiredVersion: false
+    },
+   'react - dom': {
+      singleton: true,
+      requiredVersion: false
+    }
+  }
+});
+在 Shell App 中使用 Remote App 组件（src/App.tsx）
+jsx
+import React, { useState, useEffect, Suspense } from'react';
+
+const loadRemoteModule = async (remoteName, exposedModule) => {
+  const script = document.createElement('script');
+  script.src = `${process.env.NX_PUBLIC_REMOTE_APP_URL}/remoteEntry.js`;
+  script.async = true;
+  document.head.appendChild(script);
+
+  const factory = window[remoteName].get(exposedModule);
+  const Module = await factory();
+  return Module.default;
+};
+
+const Search = React.lazy(() => loadRemoteModule('remoteApp', './Search'));
+const Detail = React.lazy(() => loadRemoteModule('remoteApp', './Detail'));
+
+const App = () => {
+  const [id, setId] = useState('');
+  const [loadedDetail, setLoadedDetail] = useState(false);
+
+  useEffect(() => {
+    if (id) {
+      setLoadedDetail(true);
+    } else {
+      setLoadedDetail(false);
+    }
+  }, [id]);
+
+  return (
+    <div>
+      <Suspense fallback={<div>Loading...</div>}>
+        <Search onChange={(e) => setId(e.target.value)} />
+        {loadedDetail && <Detail id={Number(id)} />}
+      </Suspense>
+    </div>
+  );
+};
+
+export default App;
+3. 运行和测试
+启动 Remote App：nx serve remote - app，运行在默认端口（如 4201）。
+启动 Shell App：nx serve shell - app，访问 Shell App 地址，在 Search 组件的输入框中输入5，Detail 组件会显示对应信息。
+注意事项：
+确保process.env.NX_PUBLIC_REMOTE_APP_URL配置正确，指向 Remote App 的运行地址。
+代码中的端口号等配置需根据实际项目运行情况调整 。
