@@ -1,0 +1,98 @@
+React联邦模块
+2025 年 2 月 25 日•内容由 AI 生成，不能完全保障真实
+昨天的问题，写两个react app，一个叫shell app一个叫remote app，用vite federation插件实现两者的关联，shell-app不要动态加载remote-app
+以下是使用 Vite 和 Vite Federation 插件创建 shell - app 和 remote - app 并实现关联的步骤，且 shell - app 不进行动态加载 remote - app。
+1. 创建项目
+首先，确保你已经全局安装了 npm 或 yarn。
+创建 shell - app
+bash
+npm create vite@latest shell - app --template react
+cd shell - app
+npm install @module - federation/vite
+创建 remote - app
+bash
+npm create vite@latest remote - app --template react
+cd remote - app
+npm install @module - federation/vite
+2. 配置 remote - app
+在 remote - app 的 vite.config.js 文件中进行如下配置：
+javascript
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin - react';
+import federation from '@module - federation/vite';
+
+export default defineConfig({
+    plugins: [
+        react(),
+        federation({
+            name:'remoteApp',
+            filename:'remoteEntry.js',
+            exposes: {
+                './Button': './src/Button.jsx'
+            },
+            shared: ['react','react - dom']
+        })
+    ],
+    build: {
+        modulePreload: false,
+        target: 'esnext',
+        minify: false,
+        cssCodeSplit: true
+    }
+});
+这里定义了一个名为 remoteApp 的远程模块，暴露了 src/Button.jsx 组件，并共享 react 和 react - dom 依赖。
+假设 src/Button.jsx 如下：
+jsx
+import React from'react';
+
+const Button = () => {
+    return <button>Remote Button</button>;
+};
+
+export default Button;
+3. 配置 shell - app
+在 shell - app 的 vite.config.js 文件中进行如下配置：
+javascript
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin - react';
+import federation from '@module - federation/vite';
+
+export default defineConfig({
+    plugins: [
+        react(),
+        federation({
+            name:'shellApp',
+            remotes: {
+                remoteApp: 'http://localhost:5174/remoteEntry.js'
+            },
+            shared: ['react','react - dom']
+        })
+    ]
+});
+这里将 remote - app 作为远程模块引入，假设 remote - app 在本地运行的端口是 5174。
+4. 使用远程组件
+在 shell - app 的 App.jsx 中使用远程暴露的组件：
+jsx
+import React from'react';
+const RemoteButton = React.lazy(() => import('remoteApp/Button'));
+
+function App() {
+    return (
+        <div>
+            <React.Suspense fallback={<div>Loading...</div>}>
+                <RemoteButton />
+            </React.Suspense>
+        </div>
+    );
+}
+
+export default App;
+5. 运行项目
+分别在 remote - app 和 shell - app 目录下运行：
+运行 remote - app
+bash
+npm run dev
+运行 shell - app
+bash
+npm run dev
+这样，shell - app 就可以使用 remote - app 暴露的组件，且没有采用动态加载的方式（这里的 React.lazy 是 React 层面的代码分割，与 Vite 的动态加载模块不是同一概念，并且整个关联是在构建时配置好的，不是运行时动态请求加载远程模块）。
